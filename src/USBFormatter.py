@@ -7,6 +7,8 @@ import subprocess
 import json
 import sys
 
+from USBDeviceManager import USBDeviceManager
+
 stopWriting = False
 
 import argparse
@@ -33,6 +35,12 @@ parser.add_argument('-f', '--fill', default=False, action='store_true')
 parser.add_argument('-g', '--gpt', default=False, action='store_true')
 
 args = parser.parse_args()
+
+
+# Only allow USB disks listed by the GUI (prevents non-removable disks and ../ traversal)
+if args.device not in USBDeviceManager.find_usb_devices():
+    print(f"Invalid device: {args.device}", file=sys.stderr)
+    exit(1)
 
 
 def execute(command):

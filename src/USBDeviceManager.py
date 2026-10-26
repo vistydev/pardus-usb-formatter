@@ -20,7 +20,8 @@ class USBDeviceManager:
         self.observer = MonitorObserver(self.monitor, log_event)
         self.observer.start()
 
-    def find_usb_devices(self):
+    @staticmethod
+    def find_usb_devices():
         sdb_devices = list(map(os.path.realpath, glob("/sys/block/sd*")))
         usb_devices = []
         for dev in sdb_devices:
