@@ -116,11 +116,12 @@ subprocess.call(["partprobe", f"/dev/{args.device}"])
 # Fill with zeros:
 if args.fill:
     writtenBytes = 0
+    # sysfs always reports size in 512 byte sectors, even on 4K devices
     with open(f"/sys/block/{args.device}/size", "r") as f:
-        blockCount = int(f.readline().strip())
+        sectorCount = int(f.readline().strip())
     with open(f"/sys/block/{args.device}/queue/logical_block_size", "r") as f:
         blockSize = int(f.readline().strip())
-    totalFileBytes = blockCount * blockSize
+    totalFileBytes = sectorCount * 512
 
     writeFile = open(f"/dev/{args.device}", "wb")
 
