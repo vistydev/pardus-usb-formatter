@@ -126,7 +126,9 @@ if args.fill:
     writeFile = open(f"/dev/{args.device}", "wb")
 
     oldMB = 0
-    zeros = bytes([0] * blockSize)
+    # write 4 MiB at a time, one block per loop was very slow on big drives
+    chunkSize = max(blockSize, 4 * 1024 * 1024 // blockSize * blockSize)
+    zeros = memoryview(bytes(chunkSize))
     try:
         print("PROGRESS|{}|{}".format(writtenBytes, totalFileBytes))
         sys.stdout.flush()
@@ -134,8 +136,9 @@ if args.fill:
             if stopWriting:
                 break
 
-            writeFile.write(zeros)
-            writtenBytes += blockSize
+            size = min(chunkSize, totalFileBytes - writtenBytes)
+            writeFile.write(zeros[:size])
+            writtenBytes += size
 
             newMB = int(writtenBytes / 1000 / 1000 / 10)
             if oldMB != newMB:
